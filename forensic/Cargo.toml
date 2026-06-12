@@ -1,0 +1,16 @@
+[package]
+name = "prefetch-forensic"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+description = "Windows Prefetch forensic analyzer — graded execution-evidence findings over prefetch-core."
+license = "Apache-2.0"
+authors = ["Albert Hui"]
+repository = "https://github.com/SecurityRonin/prefetch-forensic"
+readme = "../README.md"
+
+[dependencies]
+prefetch-core = { path = "../core" }
+
+[lints]
+workspace = true

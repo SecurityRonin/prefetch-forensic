@@ -1,0 +1,12 @@
+# gitleaks configuration — extends the default ruleset and allowlists known
+# false positives. The only finding is a CI cache key (`corpus-vmdk-v1`) that
+# gitleaks' generic-api-key rule flags on entropy alone; cache keys are not
+# secrets. Scoped to the cache-key pattern so real secrets still surface.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "CI cache keys are not secrets"
+regexes = [
+  '''corpus-vmdk-v[0-9]+''',
+]

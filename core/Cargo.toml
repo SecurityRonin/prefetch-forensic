@@ -1,0 +1,16 @@
+[package]
+name = "prefetch-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+description = "Pure-Rust read-only Windows Prefetch (.pf) reader — MAM/Xpress-Huffman decompression + SCCA v17/23/26/30/31 (run count, last-8 run times, volume info, loaded files)."
+license = "Apache-2.0"
+authors = ["Albert Hui"]
+keywords = ["forensics", "prefetch", "windows", "dfir", "execution"]
+categories = ["parser-implementations"]
+repository = "https://github.com/SecurityRonin/prefetch-forensic"
+readme = "../README.md"
+exclude = ["tests/data/", "fuzz/"]
+
+[lints]
+workspace = true
