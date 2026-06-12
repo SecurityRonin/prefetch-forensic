@@ -17,9 +17,14 @@ allow = [
 [bans]
 multiple-versions = "deny"
 wildcards = "deny"
+# Intra-workspace `{ path = … }` deps appear as wildcard `*` requirements; allow
+# those while still catching real wildcard registry deps.
+allow-wildcard-paths = true
 
 [sources]
 unknown-registry = "deny"
 unknown-git = "deny"
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
-allow-git = []
+# xpress-huffman is pinned to the SecurityRonin repo until it is published to
+# crates.io (then this entry and the git dep both go away).
+allow-git = ["https://github.com/SecurityRonin/xpress-huffman"]
