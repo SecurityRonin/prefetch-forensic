@@ -93,15 +93,14 @@ const SUSPICIOUS_DIRS: &[&str] = &[
 
 /// Extract the execution evidence from parsed prefetch info.
 #[must_use]
-pub fn execution_record(_info: &PrefetchInfo) -> ExecutionRecord {
-    // RED: not yet implemented.
+pub fn execution_record(info: &PrefetchInfo) -> ExecutionRecord {
     ExecutionRecord {
-        executable: String::new(),
-        run_count: 0,
-        last_run_filetimes: Vec::new(),
-        image_path: None,
-        volume_serial: None,
-        loaded_file_count: 0,
+        executable: info.executable.clone(),
+        run_count: info.run_count,
+        last_run_filetimes: info.last_run_times.clone(),
+        image_path: image_path_of(info),
+        volume_serial: info.volumes.first().map(|v| v.serial),
+        loaded_file_count: info.filenames.len(),
     }
 }
 
@@ -118,9 +117,29 @@ fn image_path_of(info: &PrefetchInfo) -> Option<String> {
 /// Audit parsed prefetch info for graded anomalies (may be empty — benign
 /// prefetch yields no findings).
 #[must_use]
-pub fn audit(_info: &PrefetchInfo) -> Vec<PrefetchAnomaly> {
-    // RED: not yet implemented.
-    Vec::new()
+pub fn audit(info: &PrefetchInfo) -> Vec<PrefetchAnomaly> {
+    let mut out = Vec::new();
+    let Some(image_path) = image_path_of(info) else {
+        return out;
+    };
+    let upper = image_path.to_uppercase();
+    let name = info.executable.to_uppercase();
+
+    let in_system32 = upper.contains(r"\SYSTEM32\") || upper.contains(r"\SYSWOW64\");
+    if SYSTEM32_BINARIES.contains(&name.as_str()) && !in_system32 {
+        out.push(PrefetchAnomaly::SystemBinaryRelocated {
+            name,
+            image_path: image_path.clone(),
+        });
+    }
+
+    if SUSPICIOUS_DIRS.iter().any(|d| upper.contains(d)) {
+        out.push(PrefetchAnomaly::SuspiciousExecutionPath {
+            executable: info.executable.clone(),
+            image_path,
+        });
+    }
+    out
 }
 
 /// Parse and audit a prefetch file (`MAM`-compressed or raw `SCCA`) in one call:
