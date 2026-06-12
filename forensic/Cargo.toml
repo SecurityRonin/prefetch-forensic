@@ -1,6 +1,6 @@
 [package]
 name = "prefetch-forensic"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 rust-version = "1.85"
 description = "Windows Prefetch forensic analyzer — execution evidence (run count, last-run times, loaded files) plus graded masquerade / suspicious-location findings, over prefetch-core."
@@ -14,7 +14,7 @@ exclude = ["tests/data/", "fuzz/"]
 
 [dependencies]
 prefetch-core = { path = "../core", version = "0.1.0" }
-forensicnomicon = "0.3.1"
+forensicnomicon = "0.4"
 
 [lints]
 workspace = true

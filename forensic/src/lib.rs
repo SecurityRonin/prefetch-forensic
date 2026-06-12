@@ -59,38 +59,6 @@ pub enum PrefetchAnomaly {
     },
 }
 
-/// Windows binaries that legitimately run only from `System32` / `SysWOW64`.
-/// A copy of any of these under another path is the classic masquerade. (Source:
-/// MITRE T1036.005; the DFIR "system-binary" baseline.)
-const SYSTEM32_BINARIES: &[&str] = &[
-    "SVCHOST.EXE",
-    "LSASS.EXE",
-    "SERVICES.EXE",
-    "CSRSS.EXE",
-    "SMSS.EXE",
-    "WININIT.EXE",
-    "WINLOGON.EXE",
-    "TASKHOSTW.EXE",
-    "DLLHOST.EXE",
-    "CONHOST.EXE",
-    "RUNDLL32.EXE",
-    "SPOOLSV.EXE",
-    "LSAISO.EXE",
-];
-
-/// Directory fragments that are common malware staging grounds — the DFIR
-/// "execution from an unusual location" triage rule (SANS/13Cubed). Matched
-/// case-insensitively as a substring of the load path.
-const SUSPICIOUS_DIRS: &[&str] = &[
-    r"\TEMP\",
-    r"\WINDOWS\TEMP\",
-    r"\APPDATA\LOCAL\TEMP\",
-    r"\DOWNLOADS\",
-    r"\USERS\PUBLIC\",
-    r"\$RECYCLE.BIN\",
-    r"\PERFLOGS\",
-];
-
 /// Extract the execution evidence from parsed prefetch info.
 #[must_use]
 pub fn execution_record(info: &PrefetchInfo) -> ExecutionRecord {
@@ -123,17 +91,18 @@ pub fn audit(info: &PrefetchInfo) -> Vec<PrefetchAnomaly> {
         return out;
     };
     let upper = image_path.to_uppercase();
-    let name = info.executable.to_uppercase();
 
+    // System-binary baseline and suspicious-location list are shared DFIR
+    // knowledge — they live in forensicnomicon, not baked in here.
     let in_system32 = upper.contains(r"\SYSTEM32\") || upper.contains(r"\SYSWOW64\");
-    if SYSTEM32_BINARIES.contains(&name.as_str()) && !in_system32 {
+    if forensicnomicon::processes::is_system32_binary(&info.executable) && !in_system32 {
         out.push(PrefetchAnomaly::SystemBinaryRelocated {
-            name,
+            name: info.executable.to_uppercase(),
             image_path: image_path.clone(),
         });
     }
 
-    if SUSPICIOUS_DIRS.iter().any(|d| upper.contains(d)) {
+    if forensicnomicon::heuristics::paths::is_suspicious_exec_path(&image_path) {
         out.push(PrefetchAnomaly::SuspiciousExecutionPath {
             executable: info.executable.clone(),
             image_path,
