@@ -271,24 +271,16 @@ mod tests {
             COREUPDATER[7],
         ]) as usize;
 
+        // decompressed length must match the MAM header.
         let out = decompress(COREUPDATER).unwrap();
-        assert_eq!(
-            out.len(),
-            declared,
-            "decompressed length must match the MAM header"
-        );
+        assert_eq!(out.len(), declared);
         // SCCA header: [u32 version][b"SCCA"]. The malware ran on the Win10
         // Desktop → version 30.
         assert_eq!(
             &out[SCCA_SIGNATURE_OFFSET..SCCA_SIGNATURE_OFFSET + 4],
-            SCCA_SIGNATURE,
-            "payload must carry the SCCA signature at offset 4"
+            SCCA_SIGNATURE
         );
-        assert_eq!(
-            u32::from_le_bytes([out[0], out[1], out[2], out[3]]),
-            30,
-            "Win10 prefetch format version"
-        );
+        assert_eq!(u32::from_le_bytes([out[0], out[1], out[2], out[3]]), 30);
     }
 
     #[test]
@@ -342,5 +334,97 @@ mod tests {
         p[0..4].copy_from_slice(&23u32.to_le_bytes());
         p[4..8].copy_from_slice(b"SCCA");
         assert_eq!(parse(&p).err(), Some(PrefetchError::UnsupportedVersion(23)));
+    }
+
+    fn put16(buf: &mut [u8], off: usize, s: &str) {
+        for (i, u) in s.encode_utf16().enumerate() {
+            buf[off + i * 2..off + i * 2 + 2].copy_from_slice(&u.to_le_bytes());
+        }
+    }
+
+    /// Build a minimal valid SCCA v30 payload: one volume, one filename.
+    /// `old_run_count`: leave `FileInfo+120` zero so the count is read from `+124`
+    /// (the pre-shift Win10 layout); otherwise use the shifted `+116`.
+    fn build_scca(old_run_count: bool) -> Vec<u8> {
+        let mut p = vec![0u8; 84 + 224];
+        p[0..4].copy_from_slice(&30u32.to_le_bytes());
+        p[4..8].copy_from_slice(b"SCCA");
+        put16(&mut p, 16, "X.EXE");
+
+        let fname = r"\VOL\X.EXE";
+        let mut fbytes = vec![0u8; (fname.encode_utf16().count() + 1) * 2];
+        put16(&mut fbytes, 0, fname); // trailing NUL already zeroed
+        let fname_off = p.len();
+        p.extend_from_slice(&fbytes);
+
+        let vol_off = p.len();
+        let dev = r"\VOLUME{abcd}";
+        let dev_nchar = dev.encode_utf16().count();
+        let mut vol = vec![0u8; 96];
+        vol[0..4].copy_from_slice(&96u32.to_le_bytes()); // device-name offset (rel)
+        vol[4..8].copy_from_slice(&(dev_nchar as u32).to_le_bytes());
+        vol[8..16].copy_from_slice(&123i64.to_le_bytes()); // creation time
+        vol[16..20].copy_from_slice(&0xDEAD_BEEFu32.to_le_bytes()); // serial
+        p.extend_from_slice(&vol);
+        let mut dbytes = vec![0u8; dev_nchar * 2];
+        put16(&mut dbytes, 0, dev);
+        p.extend_from_slice(&dbytes);
+        let vol_size = (p.len() - vol_off) as u32;
+
+        let fi = FILE_INFO_OFFSET;
+        p[fi + 16..fi + 20].copy_from_slice(&(fname_off as u32).to_le_bytes());
+        p[fi + 20..fi + 24].copy_from_slice(&(fbytes.len() as u32).to_le_bytes());
+        p[fi + 24..fi + 28].copy_from_slice(&(vol_off as u32).to_le_bytes());
+        p[fi + 28..fi + 32].copy_from_slice(&1u32.to_le_bytes());
+        p[fi + 32..fi + 36].copy_from_slice(&vol_size.to_le_bytes());
+        p[fi + 44..fi + 52].copy_from_slice(&1000i64.to_le_bytes()); // one run time
+        if old_run_count {
+            p[fi + 124..fi + 128].copy_from_slice(&5u32.to_le_bytes());
+        } else {
+            p[fi + 120..fi + 124].copy_from_slice(&3u32.to_le_bytes());
+            p[fi + 116..fi + 120].copy_from_slice(&7u32.to_le_bytes());
+        }
+        p
+    }
+
+    #[test]
+    fn parses_synthetic_scca_old_and_new_run_count() {
+        let info = parse_decompressed(&build_scca(true)).unwrap();
+        assert_eq!(info.executable, "X.EXE");
+        assert_eq!(info.run_count, 5); // FileInfo+124 (old layout)
+        assert_eq!(info.last_run_times, vec![1000]);
+        assert_eq!(info.volumes.len(), 1);
+        assert_eq!(info.volumes[0].serial, 0xDEAD_BEEF);
+        assert_eq!(info.volumes[0].device_path, r"\VOLUME{abcd}");
+        assert_eq!(info.filenames, vec![r"\VOL\X.EXE".to_string()]);
+
+        let shifted = parse_decompressed(&build_scca(false)).unwrap();
+        assert_eq!(shifted.run_count, 7); // FileInfo+116 (shifted layout)
+    }
+
+    #[test]
+    fn parse_decompressed_rejects_short_and_unsigned() {
+        assert_eq!(
+            parse_decompressed(&[0u8; 50]).err(),
+            Some(PrefetchError::TooShort)
+        );
+        // ≥84 bytes but no SCCA at offset 4.
+        assert_eq!(
+            parse_decompressed(&[0u8; 100]).err(),
+            Some(PrefetchError::BadSignature)
+        );
+    }
+
+    #[test]
+    fn truncated_filename_and_volume_offsets_degrade_gracefully() {
+        let fi = FILE_INFO_OFFSET;
+        let mut p = build_scca(true);
+        let past = (p.len() as u32) + 1000;
+        p[fi + 16..fi + 20].copy_from_slice(&past.to_le_bytes()); // filenames off past EOF
+        assert!(parse_decompressed(&p).unwrap().filenames.is_empty());
+
+        let mut q = build_scca(true);
+        q[fi + 24..fi + 28].copy_from_slice(&past.to_le_bytes()); // volumes off past EOF
+        assert!(parse_decompressed(&q).unwrap().volumes.is_empty());
     }
 }

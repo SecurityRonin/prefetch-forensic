@@ -246,10 +246,8 @@ mod tests {
             .image_path
             .unwrap()
             .ends_with(r"\SYSTEM32\COREUPDATER.EXE"));
-        assert!(
-            anomalies.is_empty(),
-            "System32 + novel name must not raise an anomaly: {anomalies:?}"
-        );
+        // System32 + a novel name must not raise an anomaly (high precision).
+        assert!(anomalies.is_empty());
     }
 
     fn info_with(exe: &str, image_path: &str) -> PrefetchInfo {
