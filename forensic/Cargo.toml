@@ -3,14 +3,18 @@ name = "prefetch-forensic"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.85"
-description = "Windows Prefetch forensic analyzer — graded execution-evidence findings over prefetch-core."
+description = "Windows Prefetch forensic analyzer — execution evidence (run count, last-run times, loaded files) plus graded masquerade / suspicious-location findings, over prefetch-core."
 license = "Apache-2.0"
 authors = ["Albert Hui"]
+keywords = ["forensics", "prefetch", "windows", "dfir", "execution"]
+categories = ["parser-implementations"]
 repository = "https://github.com/SecurityRonin/prefetch-forensic"
 readme = "../README.md"
+exclude = ["tests/data/", "fuzz/"]
 
 [dependencies]
 prefetch-core = { path = "../core" }
+forensicnomicon = "0.3.1"
 
 [lints]
 workspace = true
