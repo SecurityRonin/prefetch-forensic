@@ -16,7 +16,7 @@ exclude = ["tests/data/", "fuzz/"]
 # The MAM/Xpress-Huffman codec lives in its own reusable crate (also used for
 # hiberfil.sys / SMB3 / registry-hive decompression across the fleet). Pinned to
 # the SecurityRonin repo until it is published to crates.io (then: `= "0.1"`).
-xpress-huffman = { git = "https://github.com/SecurityRonin/xpress-huffman", rev = "a4087f36103cb20e00a24a0eef0b54923d7b28b9" }
+xpress-huffman = { version = "0.1", git = "https://github.com/SecurityRonin/xpress-huffman", rev = "a4087f36103cb20e00a24a0eef0b54923d7b28b9" }
 
 [lints]
 workspace = true
