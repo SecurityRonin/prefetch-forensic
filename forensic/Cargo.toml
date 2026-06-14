@@ -1,20 +1,20 @@
 [package]
 name = "prefetch-forensic"
 version = "0.2.0"
-edition = "2021"
-rust-version = "1.85"
+edition.workspace = true
+rust-version.workspace = true
 description = "Windows Prefetch forensic analyzer — execution evidence (run count, last-run times, loaded files) plus graded masquerade / suspicious-location findings, over prefetch-core."
-license = "Apache-2.0"
-authors = ["Albert Hui"]
+license.workspace = true
+authors.workspace = true
 keywords = ["forensics", "prefetch", "windows", "dfir", "execution"]
 categories = ["parser-implementations"]
-repository = "https://github.com/SecurityRonin/prefetch-forensic"
-readme = "../README.md"
+repository.workspace = true
+readme.workspace = true
 exclude = ["tests/data/", "fuzz/"]
 
 [dependencies]
-prefetch-core = { path = "../core", version = "0.1.0" }
-forensicnomicon = "0.5"
+prefetch-core = { workspace = true }
+forensicnomicon = { workspace = true }
 
 [lints]
 workspace = true

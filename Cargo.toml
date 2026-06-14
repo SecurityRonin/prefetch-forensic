@@ -2,6 +2,26 @@
 resolver = "2"
 members = ["core", "forensic"]
 
+# Single source of truth for fields shared by every member (DRY): bump MSRV /
+# license / repository here once; members inherit via `field.workspace = true`.
+# `version` is intentionally NOT hoisted — core (0.1.0) and forensic (0.2.0) are
+# versioned independently, so each keeps its own inline.
+[workspace.package]
+edition = "2021"
+rust-version = "1.85"
+license = "Apache-2.0"
+authors = ["Albert Hui"]
+repository = "https://github.com/SecurityRonin/prefetch-forensic"
+readme = "../README.md"
+
+# Single source of truth for dependency versions (DRY): declare each once;
+# members write `dep.workspace = true`. The inter-crate `prefetch-core` version
+# lives here too, so a bump touches one line instead of every member + dev-dep.
+[workspace.dependencies]
+prefetch-core = { path = "core", version = "0.1.0" }
+xpress-huffman = "0.1"
+forensicnomicon = "0.5"
+
 [workspace.lints.rust]
 unsafe_code = "forbid"
 

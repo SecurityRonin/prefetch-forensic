@@ -1,21 +1,21 @@
 [package]
 name = "prefetch-core"
 version = "0.1.0"
-edition = "2021"
-rust-version = "1.85"
+edition.workspace = true
+rust-version.workspace = true
 description = "Pure-Rust read-only Windows Prefetch (.pf) reader — MAM/Xpress-Huffman decompression + SCCA v30/31 (run count, last-8 run times, volume info, loaded files)."
-license = "Apache-2.0"
-authors = ["Albert Hui"]
+license.workspace = true
+authors.workspace = true
 keywords = ["forensics", "prefetch", "windows", "dfir", "execution"]
 categories = ["parser-implementations"]
-repository = "https://github.com/SecurityRonin/prefetch-forensic"
-readme = "../README.md"
+repository.workspace = true
+readme.workspace = true
 exclude = ["tests/data/", "fuzz/"]
 
 [dependencies]
 # The MAM/Xpress-Huffman codec lives in its own reusable crate (also used for
 # hiberfil.sys / SMB3 / registry-hive decompression across the fleet).
-xpress-huffman = "0.1"
+xpress-huffman = { workspace = true }
 
 [lints]
 workspace = true
