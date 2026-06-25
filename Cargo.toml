@@ -12,7 +12,7 @@ rust-version = "1.85"
 license = "Apache-2.0"
 authors = ["Albert Hui"]
 repository = "https://github.com/SecurityRonin/prefetch-forensic"
-readme = "../README.md"
+readme = "README.md"
 
 # Single source of truth for dependency versions (DRY): declare each once;
 # members write `dep.workspace = true`. The inter-crate `prefetch-core` version
@@ -20,7 +20,7 @@ readme = "../README.md"
 [workspace.dependencies]
 prefetch-core = { path = "core", version = "0.1.0" }
 xpress-huffman = "0.1"
-forensicnomicon = "0.5"
+forensicnomicon = "0.11"
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
