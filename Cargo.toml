@@ -20,7 +20,7 @@ readme = "README.md"
 [workspace.dependencies]
 prefetch-core = { path = "core", version = "0.1.0" }
 xpress-huffman = "0.1"
-forensicnomicon = "0.11"
+forensicnomicon = "1"
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
