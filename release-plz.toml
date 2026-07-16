@@ -1,0 +1,49 @@
+# release-plz owns crates.io publishing + changelogs + per-crate version bumps for
+# the workspace libraries. It runs on pushes to main (see
+# .github/workflows/release-plz.yml):
+#   - `release-pr`  opens a human-reviewed version-bump PR (conventional commits)
+#   - `release`     publishes any crate whose Cargo.toml version is ahead of
+#                   crates.io, in dependency order, and creates its git tag
+#
+# Binary distribution (a pf4n6 MSI/deb/Homebrew/winget), when present, stays in
+# release.yml, triggered by a manual `v*` tag — decoupled from library publishing.
+
+[workspace]
+# Per-package git tags, e.g. `prefetch-core-v0.1.1`. These deliberately do
+# NOT match release.yml's `v*` trigger, so a library release never kicks off a
+# binary build. Cutting a binary release stays a deliberate `v*` tag push.
+git_tag_enable = true
+# GitHub Releases (with downloadable assets) are owned by release.yml; library
+# crates get a git tag + CHANGELOG entry, not a separate GitHub Release.
+git_release_enable = false
+changelog_update = true
+# Each crate versions independently (core/forensic move at very different cadences).
+dependencies_update = false
+# Only prepare a release when a real change exists since the last one. release-plz's
+# release detection is file-based, so a changelog-only "chore: release" commit
+# otherwise re-triggers a release (the #2->#3->#4 churn loop). This allowlist makes
+# feat/fix/perf/refactor/doc/revert the only release triggers; chore/ci/test/style/
+# build (incl. release-plz's own release commits) never prepare a release.
+release_commits = "^(feat|fix|perf|refactor|doc|revert)"
+
+# Skip release-plz's own release commits so merging a release PR does not trigger
+# yet another release (the #2 -> #3 churn loop, which a squash-merged release commit
+# otherwise re-attributes to a package). Library releases still fire on
+# feat/fix/perf/refactor/doc; ci/chore/test/build no longer cause churn.
+[changelog]
+commit_parsers = [
+    { message = "^chore\\(release\\):", skip = true },
+    { message = "^chore: release", skip = true },
+    { message = "^feat", group = "added" },
+    { message = "^fix", group = "fixed" },
+    { message = "^perf", group = "performance" },
+    { message = "^refactor", group = "other" },
+    { message = "^doc", group = "documentation" },
+    { message = "^revert", group = "other" },
+    { message = "^style", skip = true },
+    { message = "^test", skip = true },
+    { message = "^ci", skip = true },
+    { message = "^build", skip = true },
+    { message = "^chore", skip = true },
+    { message = "^.*", group = "other" },
+]
