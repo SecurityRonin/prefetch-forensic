@@ -3,11 +3,11 @@ name = "prefetch-forensic"
 version = "0.3.0"
 edition.workspace = true
 rust-version.workspace = true
-description = "Windows Prefetch forensic analyzer — execution evidence (run count, last-run times, loaded files) plus graded masquerade / suspicious-location findings, over prefetch-core."
+description = "Windows Prefetch forensic analyzer — execution evidence (run count, last-run times, loaded files) plus graded masquerade / suspicious-location findings, over prefetch-core; includes the prefetch4n6 CLI."
 license.workspace = true
 authors.workspace = true
 keywords = ["forensics", "prefetch", "windows", "dfir", "execution"]
-categories = ["parser-implementations"]
+categories = ["command-line-utilities", "parser-implementations"]
 repository.workspace = true
 readme.workspace = true
 exclude = ["tests/data/", "fuzz/"]
@@ -15,6 +15,7 @@ exclude = ["tests/data/", "fuzz/"]
 [dependencies]
 prefetch-core = { workspace = true }
 forensicnomicon = { workspace = true }
+jiff = { workspace = true }
 
 [lints]
 workspace = true

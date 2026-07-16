@@ -21,6 +21,8 @@ readme = "README.md"
 prefetch-core = { path = "core", version = "0.1.0" }
 xpress-huffman = "0.1"
 forensicnomicon = "1"
+# Render prefetch's raw FILETIME last-run times as readable UTC in the prefetch4n6 CLI.
+jiff = "0.2"
 
 [workspace.lints.rust]
 unsafe_code = "forbid"

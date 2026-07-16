@@ -11,10 +11,21 @@
 [![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-success.svg)](https://github.com/rust-secure-code/safety-dance/)
 [![Security advisories](https://img.shields.io/badge/security-cargo--deny-success.svg)](deny.toml)
 
-**Prove what ran on a Windows box — and when, how often, and from where — straight from `.pf` files, on any OS.** A panic-free prefetch reader (`MAM`/Xpress-Huffman + SCCA v30/31) plus an analyzer that grades masquerading and suspicious-location execution.
+**Prove what ran on a Windows box — and when, how often, and from where — straight from `.pf` files, on any OS.** A panic-free-by-construction prefetch reader (`MAM`/Xpress-Huffman + SCCA v30/31) plus an analyzer that grades masquerading and suspicious-location execution.
+
+## Run it
+
+```console
+$ cargo install prefetch-forensic          # installs the prefetch4n6 binary
+$ prefetch4n6 COREUPDATER.EXE-157C54BB.pf AUDIODG.EXE-AB22E9A6.pf
+COREUPDATER.EXE  ran 1x  last 2020-09-19T03:40:49Z  from \VOLUME{01d68d85e0da1e22-b0e0e8ff}\WINDOWS\SYSTEM32\COREUPDATER.EXE
+AUDIODG.EXE  ran 8x  last 2020-09-19T05:18:45Z  from \VOLUME{01d68d85e0da1e22-b0e0e8ff}\WINDOWS\SYSTEM32\AUDIODG.EXE
+```
+
+`--files` adds each executable's loaded-file count. As a library it's one call:
 
 ```rust
-// One call: execution evidence + graded findings, from a raw .pf file.
+// Execution evidence + graded findings, from a raw .pf file.
 let (rec, findings) = prefetch_forensic::audit_bytes(&std::fs::read("COREUPDATER.EXE-157C54BB.pf")?)?;
 println!("{} ran {}x, last {:?}, from {:?}",
          rec.executable, rec.run_count, rec.last_run_filetimes.first(), rec.image_path);
