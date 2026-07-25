@@ -129,14 +129,14 @@ dependencies = [
 
 [[package]]
 name = "prefetch-core"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "xpress-huffman",
 ]
 
 [[package]]
 name = "prefetch-forensic"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "forensicnomicon",
  "jiff",

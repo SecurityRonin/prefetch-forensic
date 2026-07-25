@@ -1,6 +1,6 @@
 [package]
 name = "prefetch-core"
-version = "0.1.0"
+version = "0.1.1"
 edition.workspace = true
 rust-version.workspace = true
 description = "Pure-Rust read-only Windows Prefetch (.pf) reader — MAM/Xpress-Huffman decompression + SCCA v30/31 (run count, last-8 run times, volume info, loaded files)."
