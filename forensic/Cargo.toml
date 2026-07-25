@@ -1,6 +1,6 @@
 [package]
 name = "prefetch-forensic"
-version = "0.4.0"
+version = "0.4.1"
 edition.workspace = true
 rust-version.workspace = true
 description = "Windows Prefetch forensic analyzer — execution evidence (run count, last-run times, loaded files) plus graded masquerade / suspicious-location findings, over prefetch-core; includes the prefetch4n6 CLI."
