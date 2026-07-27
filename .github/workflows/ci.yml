@@ -40,9 +40,6 @@ jobs:
   advisories:
     name: cargo-deny (advisories)
     runs-on: ubuntu-latest
-    # Informational: a malformed entry in the upstream RustSec advisory-db breaks
-    # DB *loading* for the whole ecosystem and must not gate our build.
-    continue-on-error: true
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
