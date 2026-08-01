@@ -72,3 +72,26 @@ fn filetime_to_iso(filetime: i64) -> Option<String> {
         .ok()
         .map(|t| t.to_string())
 }
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+mod tests {
+    use super::*;
+
+    /// FILETIME `0` is the Windows "not set" sentinel, not 1601-01-01. It must
+    /// have no rendering at all, so `print_record`'s `-` fallback engages —
+    /// otherwise an unset timestamp is reported as a real-looking run time.
+    #[test]
+    fn unset_filetime_has_no_rendering() {
+        assert_eq!(filetime_to_iso(0), None);
+    }
+
+    /// A genuine FILETIME still renders (COREUPDATER.EXE's recorded run).
+    #[test]
+    fn real_filetime_renders_as_iso() {
+        assert_eq!(
+            filetime_to_iso(132_449_604_494_103_203).unwrap(),
+            "2020-09-19T03:40:49Z"
+        );
+    }
+}
