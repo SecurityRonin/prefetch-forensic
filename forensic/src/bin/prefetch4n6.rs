@@ -65,7 +65,13 @@ fn print_record(record: &ExecutionRecord, anomalies: &[PrefetchAnomaly], files: 
 }
 
 /// Convert a Windows `FILETIME` (100 ns ticks since 1601-01-01 UTC) to an ISO-8601 UTC string.
+///
+/// Returns `None` for the `0` sentinel Windows writes when a time is not set — it is an
+/// absent timestamp, not midnight on 1601-01-01, and must render as `-` rather than a date.
 fn filetime_to_iso(filetime: i64) -> Option<String> {
+    if filetime == 0 {
+        return None;
+    }
     // 11 644 473 600 s between 1601-01-01 and the Unix epoch.
     let unix_secs = filetime / 10_000_000 - 11_644_473_600;
     jiff::Timestamp::from_second(unix_secs)
