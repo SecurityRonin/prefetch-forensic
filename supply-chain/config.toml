@@ -34,18 +34,6 @@ criteria = "safe-to-deploy"
 version = "1.0.0"
 criteria = "safe-to-deploy"
 
-[[exemptions.forensicnomicon]]
-version = "1.0.0"
-criteria = "safe-to-deploy"
-
-[[exemptions.forensicnomicon-core]]
-version = "1.0.0"
-criteria = "safe-to-deploy"
-
-[[exemptions.forensicnomicon-data]]
-version = "1.0.0"
-criteria = "safe-to-deploy"
-
 [[exemptions.jiff]]
 version = "0.2.32"
 criteria = "safe-to-deploy"
@@ -104,8 +92,4 @@ criteria = "safe-to-deploy"
 
 [[exemptions.windows-link]]
 version = "0.2.1"
-criteria = "safe-to-deploy"
-
-[[exemptions.xpress-huffman]]
-version = "0.1.0"
 criteria = "safe-to-deploy"
