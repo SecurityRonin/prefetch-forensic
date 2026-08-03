@@ -58,7 +58,7 @@ jobs:
       - uses: taiki-e/install-action@cargo-llvm-cov
       - name: Gate on 100% line coverage (excluding // cov:unreachable)
         run: |
-          cargo llvm-cov --workspace --lib --lcov --output-path lcov.info
+          cargo llvm-cov --workspace --lcov --output-path lcov.info --ignore-filename-regex '(^|/)src/(main\.rs|bin/)'
           # Walk the lcov: track the current source file (SF:) and fail on any
           # DA:<line>,0 whose source line lacks a `// cov:unreachable` marker.
           fail=0; file=""
