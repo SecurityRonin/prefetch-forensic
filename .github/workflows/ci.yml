@@ -18,4 +18,10 @@ jobs:
   # and MSRV is read from rust-version. Anything that needed configuring would be
   # a behaviour change smuggled in by an adoption PR, so there is nothing here.
   ci:
-    uses: SecurityRonin/fleet-ci/.github/workflows/rust-ci.yml@a62ab10603151071744cec0b4e3638aa6406d4e4
+    uses: SecurityRonin/fleet-ci/.github/workflows/rust-ci.yml@c066556944bcbdd7d1812cd7fe4896b945dfd85c
+    with:
+      # CARRIED ACROSS. The replaced workflow excluded the CLI shell from the
+      # coverage gate; without this, adoption newly demands 100% line coverage
+      # of a binary this repo has never gated. Verified load-bearing — the
+      # pattern matches a real file here.
+      coverage-ignore-regex: '(^|/)src/(main\.rs|bin/)'
